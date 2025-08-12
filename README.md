@@ -23,9 +23,6 @@ pnpm install
 ```bash
 # Scrape a specific cocktail
 node scraper.js https://iba-world.com/iba-cocktail/dry-martini/
-
-# Test with local HTML file (if available)
-node scraper.js
 ```
 
 ### As a Module
@@ -71,3 +68,4 @@ https://iba-world.com/iba-cocktail/[cocktail-name]/
 
 - Node.js 18+ (for native fetch support)
 - ES modules support
+
