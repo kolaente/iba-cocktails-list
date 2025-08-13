@@ -12,24 +12,41 @@ async function scrapeIBACocktail(url) {
         const category = categoryElement.text().trim() || 'The Unforgettables';
 
         const ingredients = [];
-        $('li').each((_, element) => {
+        // Try to find ingredients in specific content areas, avoiding navigation
+        $('.entry-content li, .elementor-text-editor li, main li').each((_, element) => {
             const text = $(element).text().trim();
-            if (text && (text.includes('ml') || text.includes('cl') || text.includes('oz') || 
-                        text.includes('dash') || text.includes('drop') || text.includes('part'))) {
+            const $element = $(element);
+            // Skip if it's part of navigation or contains multiple newlines (likely menu items)
+            if (text && !text.includes('\n\n') && !$element.closest('nav').length && 
+                !$element.closest('.menu').length && !$element.closest('header').length) {
                 ingredients.push(text);
             }
         });
 
         const methodSteps = [];
-        $('li').each((_, element) => {
+        // First try to find method in paragraphs (often quoted)
+        $('p').each((_, element) => {
             const text = $(element).text().trim();
-            if (text && !text.includes('ml') && !text.includes('cl') && !text.includes('oz') && 
-                text.length > 20 && (text.includes('Pour') || text.includes('Stir') || 
-                text.includes('Strain') || text.includes('Mix') || text.includes('Shake') ||
-                text.includes('glass') || text.includes('ice'))) {
-                methodSteps.push(text);
+            if (text && text.length > 20 && 
+                (text.includes('Pour') || text.includes('Stir') || text.includes('Strain') || 
+                 text.includes('Mix') || text.includes('Shake') || text.includes('Add') ||
+                 text.includes('glass') || text.includes('ice') || text.includes('cocktail shaker'))) {
+                methodSteps.push(text.replace(/^["']|["']$/g, ''));
             }
         });
+        // If no method found in paragraphs, try list items
+        if (methodSteps.length === 0) {
+            $('li').each((_, element) => {
+                const text = $(element).text().trim();
+                if (text && !text.includes('ml') && !text.includes('cl') && !text.includes('oz') && 
+                    !text.includes('Tablespoon') && !text.includes('Teaspoon') &&
+                    text.length > 20 && (text.includes('Pour') || text.includes('Stir') || 
+                    text.includes('Strain') || text.includes('Mix') || text.includes('Shake') ||
+                    text.includes('glass') || text.includes('ice'))) {
+                    methodSteps.push(text);
+                }
+            });
+        }
         const method = methodSteps.join(' ');
 
         let garnish = '';
