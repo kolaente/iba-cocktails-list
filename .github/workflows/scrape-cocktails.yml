@@ -1,0 +1,56 @@
+name: Scrape Cocktails
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  scrape-and-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.14.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run cocktail scraper
+        run: node scrape-all.js
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet cocktails.json; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add cocktails.json
+          git commit -m "chore: update cocktails database
+
+          🤖 Automated scraping run completed
+          📊 Updated cocktail data from IBA World
+          🕐 $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+          git push
