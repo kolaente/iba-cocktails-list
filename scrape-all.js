@@ -98,7 +98,6 @@ async function scrapeAllCocktails() {
         const output = {
             metadata: {
                 totalCocktails: allCocktails.length,
-                totalNew: cocktails.length,
                 scrapedAt: new Date().toISOString(),
             },
             cocktails: allCocktails,
