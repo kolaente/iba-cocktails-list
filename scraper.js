@@ -8,8 +8,8 @@ async function scrapeIBACocktail(url) {
 
         const title = $('.elementor-heading-title').first().text().trim() || $('h1').first().text().trim();
         
-        const categoryElement = $('span.taxonomy.cocktail-category span[property="name"]');
-        const category = categoryElement.text().trim() || null;
+        const categoryElement = $('.taxonomy.cocktail-category span[property="name"]');
+        let category = categoryElement.text().trim() || null;
 
         // Find the main content container that contains Ingredients, Method, and Garnish
         let ingredients = [];
