@@ -9,54 +9,49 @@ async function scrapeIBACocktail(url) {
         const title = $('.elementor-heading-title').first().text().trim() || $('h1').first().text().trim();
         
         const categoryElement = $('span.taxonomy.cocktail-category span[property="name"]');
-        const category = categoryElement.text().trim() || 'The Unforgettables';
+        const category = categoryElement.text().trim() || null;
 
-        const ingredients = [];
-        // Try to find ingredients in specific content areas, avoiding navigation
-        $('.entry-content li, .elementor-text-editor li, main li').each((_, element) => {
-            const text = $(element).text().trim();
-            const $element = $(element);
-            // Skip if it's part of navigation or contains multiple newlines (likely menu items)
-            if (text && !text.includes('\n\n') && !$element.closest('nav').length && 
-                !$element.closest('.menu').length && !$element.closest('header').length) {
-                ingredients.push(text);
-            }
-        });
-
-        const methodSteps = [];
-        // First try to find method in paragraphs (often quoted)
-        $('p').each((_, element) => {
-            const text = $(element).text().trim();
-            if (text && text.length > 20 && 
-                (text.includes('Pour') || text.includes('Stir') || text.includes('Strain') || 
-                 text.includes('Mix') || text.includes('Shake') || text.includes('Add') ||
-                 text.includes('glass') || text.includes('ice') || text.includes('cocktail shaker'))) {
-                methodSteps.push(text.replace(/^["']|["']$/g, ''));
-            }
-        });
-        // If no method found in paragraphs, try list items
-        if (methodSteps.length === 0) {
-            $('li').each((_, element) => {
+        // Find the main content container that contains Ingredients, Method, and Garnish
+        let ingredients = [];
+        let method = '';
+        let garnish = '';
+        
+        // Find the specific container with ingredients, method, and garnish
+        // Based on the HTML structure, look for h4 elements with these titles
+        const ingredientsHeader = $('h4:contains("Ingredients")');
+        const methodHeader = $('h4:contains("Method")');
+        const garnishHeader = $('h4:contains("Garnish")');
+        
+        if (ingredientsHeader.length > 0) {
+            // Extract ingredients - find the next elementor element with shortcode content
+            const ingredientsContent = ingredientsHeader.closest('.elementor-element').next('.elementor-element').find('.elementor-shortcode ul li');
+            ingredientsContent.each((_, element) => {
                 const text = $(element).text().trim();
-                if (text && !text.includes('ml') && !text.includes('cl') && !text.includes('oz') && 
-                    !text.includes('Tablespoon') && !text.includes('Teaspoon') &&
-                    text.length > 20 && (text.includes('Pour') || text.includes('Stir') || 
-                    text.includes('Strain') || text.includes('Mix') || text.includes('Shake') ||
-                    text.includes('glass') || text.includes('ice'))) {
-                    methodSteps.push(text);
+                if (text) {
+                    ingredients.push(text);
                 }
             });
         }
-        const method = methodSteps.join(' ');
+        
+        if (methodHeader.length > 0) {
+            // Extract method
+            const methodSteps = [];
+            const methodContent = methodHeader.closest('.elementor-element').next('.elementor-element').find('.elementor-shortcode p');
+            methodContent.each((_, element) => {
+                const text = $(element).text().trim();
+                if (text) {
+                    methodSteps.push(text);
+                }
+            });
+            method = methodSteps.join(' ');
+        }
+        
+        if (garnishHeader.length > 0) {
+            // Extract garnish
+            const garnishContent = garnishHeader.closest('.elementor-element').next('.elementor-element').find('.elementor-shortcode p');
+            garnish = garnishContent.first().text().trim();
+        }
 
-        let garnish = '';
-        $('p').each((_, element) => {
-            const text = $(element).text().trim();
-            if (text && text.toLowerCase().includes('squeeze') && text.toLowerCase().includes('lemon') && text.length < 200) {
-                garnish = text;
-                return false;
-            }
-        });
 
         const imageElement = $('img[src*="cocktail"][src*=".webp"], img[src*="cocktail"][src*=".jpg"], img[src*="cocktail"][src*=".png"]');
         const image = imageElement.attr('src') || '';
