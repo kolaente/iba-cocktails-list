@@ -35,7 +35,7 @@ async function scrapeAllCocktails() {
                     // Add the IBA URL to the cocktail data
                     const cocktailWithUrl = {
                         ...cocktailData,
-                        ibaUrl: url
+                        url,
                     };
                     
                     cocktails.push(cocktailWithUrl);
@@ -64,10 +64,8 @@ async function scrapeAllCocktails() {
                 totalCocktails: cocktails.length,
                 totalErrors: errors.length,
                 scrapedAt: new Date().toISOString(),
-                source: 'IBA World Cocktails (https://iba-world.com)'
             },
             cocktails: cocktails,
-            errors: errors
         };
         
         writeFileSync('cocktails.json', JSON.stringify(output, null, 2), 'utf8');
