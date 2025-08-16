@@ -2,7 +2,7 @@ name: Scrape Cocktails
 
 on:
   schedule:
-    - cron: '0 2 * * 1'
+    - cron: "0 2 * * 1"
   workflow_dispatch:
   push:
     branches:
@@ -60,9 +60,3 @@ jobs:
           📊 Updated cocktail data from IBA World
           🕐 $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
           git push
-      - name: Push changes
-        if: steps.changes.outputs.changed == 'true'
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }}
