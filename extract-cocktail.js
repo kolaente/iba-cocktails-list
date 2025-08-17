@@ -7,7 +7,7 @@ async function scrapeIBACocktail(url) {
         const $ = cheerio.load(html);
 
         const title = $('.elementor-heading-title').first().text().trim() || $('h1').first().text().trim();
-        
+
         const categoryElement = $('.taxonomy.cocktail-category span[property="name"]');
         let category = categoryElement.text().trim() || null;
 
@@ -15,13 +15,13 @@ async function scrapeIBACocktail(url) {
         let ingredients = [];
         let method = '';
         let garnish = '';
-        
+
         // Find the specific container with ingredients, method, and garnish
         // Based on the HTML structure, look for h4 elements with these titles
         const ingredientsHeader = $('h4:contains("Ingredients")');
         const methodHeader = $('h4:contains("Method")');
         const garnishHeader = $('h4:contains("Garnish")');
-        
+
         if (ingredientsHeader.length > 0) {
             // Extract ingredients - find the next elementor element with shortcode content
             const ingredientsContent = ingredientsHeader.closest('.elementor-element').next('.elementor-element').find('.elementor-shortcode ul li');
@@ -32,7 +32,7 @@ async function scrapeIBACocktail(url) {
                 }
             });
         }
-        
+
         if (methodHeader.length > 0) {
             // Extract method
             const methodSteps = [];
@@ -45,7 +45,7 @@ async function scrapeIBACocktail(url) {
             });
             method = methodSteps.join(' ');
         }
-        
+
         if (garnishHeader.length > 0) {
             // Extract garnish
             const garnishContent = garnishHeader.closest('.elementor-element').next('.elementor-element').find('.elementor-shortcode p');
