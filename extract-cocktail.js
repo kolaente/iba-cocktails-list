@@ -57,7 +57,7 @@ async function scrapeIBACocktail(url) {
         const image = imageElement.attr('src') || '';
 
         let video = '';
-        const videoLink = $('a[href*="youtube.com"], a[href*="youtu.be"]').attr('href');
+        const videoLink = $('a[href*="youtube.com\/watch"], a[href*="youtu.be"]').attr('href');
         if (videoLink) {
             video = videoLink;
         }
